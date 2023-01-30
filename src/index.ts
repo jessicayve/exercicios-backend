@@ -217,3 +217,37 @@ app.put("/videos/:id", async (req: Request, res: Response) => {
         }
     }
 })
+
+app.delete("/videos/:id", async (req: Request, res: Response) => {
+    try {
+        const idToDelete = req.params.id
+
+        if (idToDelete[0] !== "v") {
+            res.status(400)
+            throw new Error("id deve iniciar com a letra v")
+        }
+
+        const videoIdAlreadyExists: TVideosDB[] | undefined[] = await db("videos").where({ id: idToDelete })
+
+
+
+        if (!videoIdAlreadyExists) {
+            res.status(404)
+            throw new Error("id não encontrado")
+        }
+        await db("videos").del().where({ id: idToDelete })
+
+        res.status(200).send({ message: "Video deletada com sucesso" })
+
+    } catch (error) {
+        console.log(error)
+        if (req.statusCode === 200) {
+            res.status(500)
+        }
+        if (error instanceof Error) {
+            res.send(error.message)
+        } else {
+            res.send("Erro inesperado")
+        }
+    }
+})
