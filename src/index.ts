@@ -79,12 +79,12 @@ app.post("/videos", async (req: Request, res: Response) => {
 
         if (typeof title !== "string") {
             res.status(400)
-            throw new Error("'name' deve ser string")
+            throw new Error("'title' deve ser string")
         }
 
         if (typeof duration !== "string") {
             res.status(400)
-            throw new Error("'email' deve ser string")
+            throw new Error("'duration' deve ser string")
         }
 
 
@@ -177,12 +177,6 @@ app.put("/videos/:id", async (req: Request, res: Response) => {
             }
         }
 
-        if (newCreatedAt!== undefined) {
-            if (typeof newCreatedAt !== "string") {
-                res.status(400)
-                throw new Error("Image url deve ser uma string")
-            }
-        }
        
 
         const [videos]: TVideosDB[] | undefined = await db("videos").where({ id: idToEdit })
@@ -204,6 +198,40 @@ app.put("/videos/:id", async (req: Request, res: Response) => {
 
         res.status(200).send({ message: "Video editado com sucesso", videos: newVideo})
 
+
+    } catch (error) {
+        console.log(error)
+        if (req.statusCode === 200) {
+            res.status(500)
+        }
+        if (error instanceof Error) {
+            res.send(error.message)
+        } else {
+            res.send("Erro inesperado")
+        }
+    }
+})
+
+app.delete("/videos/:id", async (req: Request, res: Response) => {
+    try {
+        const idToDelete = req.params.id
+
+        if (idToDelete[0] !== "v") {
+            res.status(400)
+            throw new Error("id deve iniciar com a letra v")
+        }
+
+        const videoIdAlreadyExists: TVideosDB[] | undefined[] = await db("videos").where({ id: idToDelete })
+
+
+
+        if (!videoIdAlreadyExists) {
+            res.status(404)
+            throw new Error("id não encontrado")
+        }
+        await db("videos").del().where({ id: idToDelete })
+
+        res.status(200).send({ message: "Video deletada com sucesso" })
 
     } catch (error) {
         console.log(error)
