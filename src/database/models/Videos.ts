@@ -2,7 +2,7 @@ export class Videos{
 
     constructor(
         private id:string,
-        private title:string,
+        public title:string,
         private duration:string,
         private createdAt:string
     
